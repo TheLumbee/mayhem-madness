@@ -1,0 +1,5 @@
+Object_Files
+*.o
+.vscode
+.qmake.stash
+mayhem-madness
