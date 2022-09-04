@@ -9,8 +9,6 @@
 
 League::League(const QString& teamStatsFile)
 {
-    leagueDivisions.first = new Division("East");
-    leagueDivisions.second = new Division("West");
     QFile* dataFile = new QFile(teamStatsFile);
     if (!dataFile->open(QIODevice::ReadOnly))
     {
@@ -59,19 +57,6 @@ void League::WeighTeams()
 
 void League::CreateDivisions()
 {
-    // for (int ii = 0; ii < leagueTeams.size(); ++ii)
-    // {
-    //     if (ii % 2 == 0)
-    //     {
-    //         leagueDivisions.first->AddTeam(leagueTeams.at(ii));
-    //     }
-
-    //     else
-    //     {
-    //         leagueDivisions.second->AddTeam(leagueTeams.at(ii));
-    //     }
-    // }
-
     double lowestMargin = 0xffffffff;
     Division bestEast("Best East");
     Division bestWest("Best West");
@@ -102,10 +87,7 @@ void League::CreateDivisions()
         }
     }
 
-    bestEast.PrintDivision();
-    bestWest.PrintDivision();
-
-    // qDebug().noquote() << leagueDivisions.first->PrintDivision();
-    // qDebug().noquote() << leagueDivisions.second->PrintDivision();
+    leagueDivisions.first = new Division(bestEast);
+    leagueDivisions.second = new Division(bestWest);
 }
 

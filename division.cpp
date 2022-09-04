@@ -35,6 +35,6 @@ QString Division::PrintDivision()
         teams += '\n';
     }
 
-    return QString("%1 Strength: 2\n%3")
+    return QString("%1 Strength: %2\n%3")
         .arg(name).arg(GetAverageTeamStrength()).arg(teams);
 }

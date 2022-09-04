@@ -3,3 +3,4 @@ Object_Files
 .vscode
 .qmake.stash
 mayhem-madness
+Makefile

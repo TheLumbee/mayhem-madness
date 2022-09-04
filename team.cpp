@@ -1,8 +1,8 @@
 #include "team.h"
 
-const double FINAL_STANDING_WEIGHT = 0.2;
+const double FINAL_STANDING_WEIGHT = 0.20;
 const double WIN_PERC_WEIGHT = 0.20;
-const double POINTS_FOR_WEIGHT = 0.6;
+const double POINTS_FOR_WEIGHT = 0.60;
 
 double Team::GetTeamWeight()
 {

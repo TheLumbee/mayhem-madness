@@ -12,7 +12,7 @@ public:
 
 private:
     QPair<Division*, Division*> leagueDivisions;
-    QList<QPair<QString, QString> > leagueSchedule;
+    QList<QPair<QString, QString>> leagueSchedule;
     QList<Team*> leagueTeams;
     void CreateDivisions();
 };
