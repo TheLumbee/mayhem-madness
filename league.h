@@ -9,12 +9,13 @@ public:
     League(const QString& teamStatsFile);
     QString PrintTeams();
     void WeighTeams();
+    void CreateDivisions();
 
 private:
-    QPair<Division*, Division*> leagueDivisions;
-    QList<QPair<QString, QString>> leagueSchedule;
+    Division* eastDivision = nullptr;
+    Division* westDivision = nullptr;
+    QList<QPair<QString, QString> > leagueSchedule;
     QList<Team*> leagueTeams;
-    void CreateDivisions();
 };
 
 #endif // LEAGUE_H

@@ -17,6 +17,6 @@ double Team::GetTeamWeight()
 
 QString Team::PrintTeam()
 {
-    return QString("%1 Weight: %2")
+    return QString("%1: %2")
         .arg(name).arg(teamWeight);
 }

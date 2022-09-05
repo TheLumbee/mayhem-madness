@@ -51,8 +51,6 @@ void League::WeighTeams()
     {
         return a->GetTeamWeight() > b->GetTeamWeight();
     });
-
-    CreateDivisions();
 }
 
 void League::CreateDivisions()
@@ -87,7 +85,7 @@ void League::CreateDivisions()
         }
     }
 
-    leagueDivisions.first = new Division(bestEast);
-    leagueDivisions.second = new Division(bestWest);
+    eastDivision = new Division(bestEast);
+    westDivision = new Division(bestWest);
 }
 
