@@ -10,10 +10,11 @@ public:
     double GetAverageTeamStrength();
     void AddTeam(Team* t);
     QString PrintDivision();
+    void CreateDivisionalMatchups();
+    QList<Team*> divisionTeams;
 
 private:
     double averageTeamStrength = 0;
-    QList<Team*> divisionTeams;
     QString name;
 };
 

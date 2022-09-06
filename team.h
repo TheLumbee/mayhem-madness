@@ -1,7 +1,9 @@
 #ifndef TEAM_H
 #define TEAM_H
 
-#include <QSet>
+#include <QHash>
+
+class Division;
 
 class Team
 {
@@ -12,7 +14,7 @@ public:
         avgWinPerc = 0,
         avgPointsFor = 0;
     QList<QString> teamSchedule;
-    QSet<QString> nonDivisionMatchups;
+    QHash<QString, bool> nonDivisionMatchups;
     QString name;
     double GetTeamWeight();
 
@@ -27,9 +29,12 @@ public:
     }
     
     QString PrintTeam();
+    void SetDivision(Division* d);
+    bool IsTeamInDivision(Team* otherTeam);
 
 private:
     double teamWeight = 0;
+    Division* teamDivision = nullptr;
 };
 
 #endif // TEAM_H

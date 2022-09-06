@@ -1,5 +1,9 @@
 #include "team.h"
 
+#include "division.h"
+
+#include <algorithm>
+
 const double FINAL_STANDING_WEIGHT = 0.20;
 const double WIN_PERC_WEIGHT = 0.20;
 const double POINTS_FOR_WEIGHT = 0.60;
@@ -19,4 +23,19 @@ QString Team::PrintTeam()
 {
     return QString("%1: %2")
         .arg(name).arg(teamWeight);
+}
+
+void Team::SetDivision(Division* d)
+{
+    teamDivision = d;
+}
+
+bool Team::IsTeamInDivision(Team* otherTeam)
+{
+    if (teamDivision->divisionTeams.contains(otherTeam))
+    {
+        return true;
+    }
+
+    return false;
 }
