@@ -104,6 +104,20 @@ Team* League::FindTeam(const QString& teamName)
     return nullptr;
 }
 
+Team* League::GetLastTeam(const QSet<QString>& otherTeams, Team* currentTeam)
+{
+    for (auto ii :leagueTeams)
+    {
+        if (!otherTeams.contains(ii->name) &&
+            ii != currentTeam)
+        {
+            return ii;
+        }
+    }
+
+    return nullptr;
+}
+
 void League::SetNonDivisionalMatchups()
 {
     qDebug().noquote() << "Setting non-divisional matchups...";
@@ -153,13 +167,42 @@ void League::CreateWeekMatchups()
 
         int rand = QRandomGenerator::global()->bounded(currentTeam->teamSchedule.size());
         Team* otherTeam = FindTeam(currentTeam->teamSchedule.at(rand));
-        bool show = false;
+        int temp = 0;
         while (teamsDecided.contains(otherTeam->name))
         {
-            if (!show)
+            if (temp == currentTeam->teamSchedule.size())
             {
-                qDebug() << currentTeam->name << " " << otherTeam->name;
+                otherTeam = GetLastTeam(teamsDecided, currentTeam);
+                if (!currentTeam->IsTeamInDivision(otherTeam))
+                {
+                    if (!currentTeam->nonDivisionMatchups.contains(otherTeam->name))
+                    {
+                        if (!currentTeam->RemoveNonPlayedTeam())
+                        {
+                            qDebug() << "No team to remove.";
+                            std::exit(1);
+                        }
+
+                        if (!otherTeam->nonDivisionMatchups.contains(currentTeam->name))
+                        {
+                            if (!otherTeam->RemoveNonPlayedTeam())
+                            {
+                                qDebug() << "Other team unable to remove";
+                                std::exit(1);
+                            }
+
+                            otherTeam->nonDivisionMatchups.insert(currentTeam->name, false);
+                        }
+
+                        otherTeam->nonDivisionMatchups[currentTeam->name] = true;
+                        currentTeam->nonDivisionMatchups.insert(otherTeam->name, true);
+                    }
+                }
+
+                break;
             }
+
+            temp++;
             rand = QRandomGenerator::global()->bounded(currentTeam->teamSchedule.size());
             otherTeam = FindTeam(currentTeam->teamSchedule.at(rand));
         }

@@ -31,6 +31,7 @@ public:
     QString PrintTeam();
     void SetDivision(Division* d);
     bool IsTeamInDivision(Team* otherTeam);
+    bool RemoveNonPlayedTeam();
 
 private:
     double teamWeight = 0;

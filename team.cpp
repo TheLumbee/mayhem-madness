@@ -39,3 +39,18 @@ bool Team::IsTeamInDivision(Team* otherTeam)
 
     return false;
 }
+
+bool Team::RemoveNonPlayedTeam()
+{
+    auto teams = nonDivisionMatchups.keys();
+    for (auto ii : teams)
+    {
+        if (!nonDivisionMatchups[ii])
+        {
+            nonDivisionMatchups.remove(ii);
+            return true;
+        }
+    }
+
+    return false;
+}

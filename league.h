@@ -20,6 +20,7 @@ private:
     QList<QPair<QString, QString> > leagueSchedule;
     QList<Team*> leagueTeams;
     Team* FindTeam(const QString& teamName);
+    Team* GetLastTeam(const QSet<QString>& otherTeams, Team* currentTeam);
 };
 
 #endif // LEAGUE_H
