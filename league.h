@@ -1,7 +1,12 @@
 #ifndef LEAGUE_H
 #define LEAGUE_H
 
-#include "division.h"
+#include <qlist.h>
+#include <qset.h>
+#include <qstring.h>
+
+class Division;
+class Team;
 
 class League
 {
@@ -10,17 +15,16 @@ public:
     QString PrintTeams();
     void WeighTeams();
     void CreateDivisions();
-    void SetNonDivisionalMatchups();
-    void CreateWeekMatchups();
     void CreateSchedule();
-
-private:
+    QList<Team*> leagueTeams;
     Division* eastDivision = nullptr;
     Division* westDivision = nullptr;
-    QList<QPair<QString, QString> > leagueSchedule;
-    QList<Team*> leagueTeams;
-    Team* FindTeam(const QString& teamName);
-    Team* GetLastTeam(const QSet<QString>& otherTeams, Team* currentTeam);
+
+private:
+    QList<QList<QPair<QString, QString>>> leagueSchedule;
+    Team* FindTeam(const QString& name);
+    void PrintSchedule();
+    double GetScheduleDiff();
 };
 
 #endif // LEAGUE_H

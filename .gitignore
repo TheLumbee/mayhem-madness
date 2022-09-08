@@ -7,3 +7,5 @@ Makefile.*
 Makefile
 debug
 release
+*.vcxproj.user
+x64

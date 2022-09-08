@@ -1,5 +1,7 @@
 #include "division.h"
 
+#include "team.h"
+
 Division::Division(const QString& name)
 {
     this->name = name;
@@ -38,21 +40,4 @@ QString Division::PrintDivision()
 
     return QString("%1 Strength: %2\n%3")
         .arg(name).arg(GetAverageTeamStrength()).arg(teams);
-}
-
-void Division::CreateDivisionalMatchups()
-{
-    for (int ii = 0; ii < divisionTeams.size() - 1; ++ii)
-    {
-        for (int jj = ii + 1; jj < divisionTeams.size(); ++jj)
-        {
-            for (int kk = 0; kk < 2; ++kk)
-            {
-                divisionTeams.at(ii)->teamSchedule.append(divisionTeams.at(jj)
-                    ->name);
-                divisionTeams.at(jj)->teamSchedule.append(divisionTeams.at(ii)
-                    ->name);
-            }
-        }
-    }
 }

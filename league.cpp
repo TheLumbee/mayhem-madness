@@ -1,5 +1,8 @@
 #include "league.h"
 
+#include "division.h"
+#include "team.h"
+
 #include <algorithm>
 #include <cmath>
 #include <QDebug>
@@ -19,7 +22,7 @@ League::League(const QString& teamStatsFile)
     while (!in.atEnd())
     {
         QStringList data = in.readLine().split(',');
-        Team* t = new Team();
+        Team* t = new Team(this);
         t->name = data.at(0);
         t->avgFinishingPosition = data.at(1).toDouble();
         t->avgWinPerc = data.at(2).toDouble();
@@ -85,17 +88,60 @@ void League::CreateDivisions()
         }
     }
 
-    eastDivision = new Division(bestEast);
-    eastDivision->CreateDivisionalMatchups();
-    westDivision = new Division(bestWest);
-    westDivision->CreateDivisionalMatchups();
+    eastDivision = new Division("East");
+    for (auto t : bestEast.divisionTeams)
+    {
+        eastDivision->AddTeam(t);
+    }
+
+    westDivision = new Division("West");
+    for (auto t : bestWest.divisionTeams)
+    {
+        westDivision->AddTeam(t);
+    }
 }
 
-Team* League::FindTeam(const QString& teamName)
+void League::CreateSchedule()
+{
+    double lowest = 0xffffffff;
+    QString bestSchedule;
+    while (lowest > 35)
+    {
+        bool test = false;
+        for (auto team : leagueTeams)
+        {
+            test = team->GenerateMatchups();
+        }
+
+        if (test)
+        {
+            double diff = GetScheduleDiff();
+            if (diff < lowest)
+            {
+                lowest = diff;
+                bestSchedule = "";
+                for (auto team : leagueTeams)
+                {
+                    bestSchedule += "\n\n" + team->PrintSchedule();
+                }
+            }
+        }
+
+        for (auto team : leagueTeams)
+        {
+            team->teamSchedule.clear();
+            team->matchups.clear();
+        }
+    }
+
+    qDebug().noquote() << bestSchedule;
+}
+
+Team* League::FindTeam(const QString& name)
 {
     for (auto t : leagueTeams)
     {
-        if (t->name == teamName)
+        if (t->name == name)
         {
             return t;
         }
@@ -104,127 +150,22 @@ Team* League::FindTeam(const QString& teamName)
     return nullptr;
 }
 
-Team* League::GetLastTeam(const QSet<QString>& otherTeams, Team* currentTeam)
+void League::PrintSchedule()
 {
-    for (auto ii :leagueTeams)
+    for (auto team : leagueTeams)
     {
-        if (!otherTeams.contains(ii->name) &&
-            ii != currentTeam)
-        {
-            return ii;
-        }
-    }
-
-    return nullptr;
-}
-
-void League::SetNonDivisionalMatchups()
-{
-    qDebug().noquote() << "Setting non-divisional matchups...";
-    Division east(*eastDivision);
-    Division west(*westDivision);
-    for (int ii = 0; ii < east.divisionTeams.size(); ii++)
-    {
-        if (ii <= 2)
-        {
-            for (int jj = 0; jj < 3; jj++)
-            {
-                east.divisionTeams.at(ii)->nonDivisionMatchups.insert
-                    (west.divisionTeams.at(jj)->name, false);
-                west.divisionTeams.at(jj)->nonDivisionMatchups.insert
-                    (east.divisionTeams.at(ii)->name, false);
-                east.divisionTeams.at(ii)->teamSchedule.append(west.divisionTeams.at(jj)->name);
-                west.divisionTeams.at(jj)->teamSchedule.append(east.divisionTeams.at(ii)->name);
-            }
-        }
-
-        else
-        {
-            for (int jj = 3; jj < west.divisionTeams.size(); jj++)
-            {
-                east.divisionTeams.at(ii)->nonDivisionMatchups.insert
-                    (west.divisionTeams.at(jj)->name, false);
-                west.divisionTeams.at(jj)->nonDivisionMatchups.insert
-                    (east.divisionTeams.at(ii)->name, false);
-                east.divisionTeams.at(ii)->teamSchedule.append(west.divisionTeams.at(jj)->name);
-                west.divisionTeams.at(jj)->teamSchedule.append(east.divisionTeams.at(ii)->name);
-            }
-        }
+        qDebug() << "\n";
+        team->PrintSchedule();
     }
 }
 
-void League::CreateWeekMatchups()
+double League::GetScheduleDiff()
 {
-    QList<QPair<QString, QString>> matchups;
-    QSet<QString> teamsDecided;
-    for (int ii = 0; ii < leagueTeams.size(); ii++)
+    std::sort(leagueTeams.begin(), leagueTeams.end(), [](Team* a, Team* b)
     {
-        Team* currentTeam = leagueTeams.at(ii);
-        if (teamsDecided.contains(currentTeam->name))
-        {
-            continue;
-        }
-
-        int rand = QRandomGenerator::global()->bounded(currentTeam->teamSchedule.size());
-        Team* otherTeam = FindTeam(currentTeam->teamSchedule.at(rand));
-        int temp = 0;
-        while (teamsDecided.contains(otherTeam->name))
-        {
-            if (temp == currentTeam->teamSchedule.size())
-            {
-                otherTeam = GetLastTeam(teamsDecided, currentTeam);
-                if (!currentTeam->IsTeamInDivision(otherTeam))
-                {
-                    if (!currentTeam->nonDivisionMatchups.contains(otherTeam->name))
-                    {
-                        if (!currentTeam->RemoveNonPlayedTeam())
-                        {
-                            qDebug() << "No team to remove.";
-                            std::exit(1);
-                        }
-
-                        if (!otherTeam->nonDivisionMatchups.contains(currentTeam->name))
-                        {
-                            if (!otherTeam->RemoveNonPlayedTeam())
-                            {
-                                qDebug() << "Other team unable to remove";
-                                std::exit(1);
-                            }
-
-                            otherTeam->nonDivisionMatchups.insert(currentTeam->name, false);
-                        }
-
-                        otherTeam->nonDivisionMatchups[currentTeam->name] = true;
-                        currentTeam->nonDivisionMatchups.insert(otherTeam->name, true);
-                    }
-                }
-
-                break;
-            }
-
-            temp++;
-            rand = QRandomGenerator::global()->bounded(currentTeam->teamSchedule.size());
-            otherTeam = FindTeam(currentTeam->teamSchedule.at(rand));
-        }
-
-        matchups.append(qMakePair(currentTeam->name, otherTeam->name));
-        teamsDecided.insert(currentTeam->name);
-        teamsDecided.insert(otherTeam->name);
-        currentTeam->teamSchedule.removeOne(otherTeam->name);
-        otherTeam->teamSchedule.removeOne(currentTeam->name);
-        qDebug().noquote() << currentTeam->name << " vs " << otherTeam->name;
-    }
-
-    leagueSchedule.append(matchups);
-}
-
-void League::CreateSchedule()
-{
-    qDebug().noquote() << "Creating schedule... ";
-    for (int ii = 0; ii < 13; ii++)
-    {
-        qDebug().noquote() << QString("\n\n *** Week %1 ***").arg(ii + 1);
-        CreateWeekMatchups();
-    }
+        return a->GetScheduleStrength() > b->GetScheduleStrength();
+    });
+    
+    return std::abs(leagueTeams.first()->GetScheduleStrength() - leagueTeams.last()->GetScheduleStrength());
 }
 

@@ -1,7 +1,10 @@
 #ifndef DIVISION_H
 #define DIVISION_H
 
-#include "team.h"
+#include <qlist.h>
+#include <qstring.h>
+
+class Team;
 
 class Division
 {
@@ -10,7 +13,6 @@ public:
     double GetAverageTeamStrength();
     void AddTeam(Team* t);
     QString PrintDivision();
-    void CreateDivisionalMatchups();
     QList<Team*> divisionTeams;
 
 private:
